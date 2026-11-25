@@ -1,0 +1,26 @@
+# Запуск из папки docker/:   docker compose up -d --build
+# Подключение снаружи (DBeaver / SQL Developer):
+#   host=localhost  port=1521  service=FREEPDB1  user=test  password=test
+services:
+  oracle:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: oracle-test-nedoimka
+    container_name: oracle-test
+    ports:
+      - "1521:1521"
+    volumes:
+      # SQL-решения монтируются «вживую»: правите файл — сразу запускаете,
+      # пересобирать образ не нужно.
+      - ../A_SQL:/opt/solution/A_SQL:ro
+      - oradata:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+volumes:
+  oradata:
